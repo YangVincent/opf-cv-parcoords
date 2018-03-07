@@ -47,7 +47,6 @@ with open (test + '.csv', 'r') as f:
                 if bucket2 == num_bins:
                     bucket2 -= 1
                 bins[bucket1][bucket2] += 1
-                bins[bucket2][bucket1] += 1
             print('Comparing ' + str(dimensions[i]) + ' and ' + str(dimensions[j]))
             print_bins(bins)
             axesbins[i][j] = bins
