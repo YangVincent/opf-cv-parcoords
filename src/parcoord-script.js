@@ -33,6 +33,16 @@ var types = {
     }
 };
 
+var printBin = function(bins) {
+    for (let i = 0; i < bins.length; i++) {
+        for (let j = 0; j < bins[i].length; j++){
+            console.log(bins[i][j])
+        }
+        console.log('');
+    }
+
+}
+
 var dimensions = [
     {
         key: "Dalc",
@@ -103,7 +113,9 @@ var ctx = canvas.node().getContext("2d");
 ctx.globalCompositeOperation = 'darken';
 ctx.globalAlpha = 0.15;
 //ctx.lineWidth = 1.5;
-ctx.lineWidth = 15;
+//ctx.lineWidth = 15;
+ctx.lineCap = 'round';
+ctx.lineWidth = 50;
 ctx.scale(devicePixelRatio, devicePixelRatio);
 
 var output = d3.select("body").append("pre");
@@ -115,7 +127,7 @@ var axes = svg.selectAll(".axis")
     .attr("transform", function(d,i) { return "translate(" + xscale(i) + ")"; });
 
 //d3.csv("planets.csv", function(error, data) {
-d3.csv("age-alc.csv", function(error, data) {
+d3.csv("test.csv", function(error, data) {
     if (error) throw error;
 
     data.forEach(function(d) {
@@ -142,6 +154,81 @@ d3.csv("age-alc.csv", function(error, data) {
         dim.scale.domain(dim.domain);
     });
 
+    // Do data processing here
+    console.log(data);
+    console.log(Object.keys(data[0]));
+    var numBins = 10;
+    var dims = Object.keys(data[0]);
+    var numDimensions = dims.length;
+    
+
+    // create 2d array to represent every possible combination.
+    var comb = new Array(numDimensions);
+    for (var i = 0; i < numDimensions; i++) {
+        comb[i] = new Array(numDimensions);
+        console.log(Object.keys(data[0])[i]);
+    }
+
+    // find min, max for each
+    var minvals = new Array(numDimensions);
+    var maxvals = new Array(numDimensions);
+    for (let i = 0; i < numDimensions; i++) {
+        minvals[i] = data[0][dims[i]];
+        maxvals[i] = data[0][dims[i]];
+    }
+    for (let i = 0; i < numDimensions; i++) {
+        for (let j = 0; j < data.length; j++) {
+            minvals[i] = Math.min(minvals[i], data[j][dims[i]])
+            maxvals[i] = Math.max(maxvals[i], data[j][dims[i]])
+        }
+    }
+    console.log(minvals);
+    console.log(maxvals);
+
+
+    // for each possible combination, create an array of tuples.
+    for (let i = 1; i < numDimensions; i++) {
+        for (let j = i+1; j < numDimensions; j++) {
+            // between each pair of axes, we need to create a 2 by 2 array of numBins
+            var bins = new Array(numBins);
+            for (let k = 0; k < numBins; k++) {
+                bins[k] = Array.apply(null, Array(numBins)).map(Number.prototype.valueOf,0);
+            }
+
+            for (let k = 0; k < data.length; k++) {
+                let val1 = data[k][dims[i]];
+                let val2 = data[k][dims[j]];
+                let bucket1 = Math.trunc((val1 - minvals[i])/(maxvals[i] - minvals[i]) * 10);
+                let bucket2 = Math.trunc((val2 - minvals[j])/(maxvals[j] - minvals[j]) * 10);
+                //console.log('val1: ' + val1 + ', min: ' + minvals[i] + ', max: ' + maxvals[i] + ', bucket: ' + bucket1);
+                //console.log('val2: ' + val2 + ', min: ' + minvals[j] + ', max: ' + maxvals[j] + ', bucket: ' + bucket2);
+                if (bucket1 == numBins) {
+                    bucket1 = numBins-1;
+                }
+                if (bucket2 == numBins) {
+                    bucket2 = numBins-1;
+                }
+                if (bins[bucket1][bucket2] == null){
+                    bins[bucket1][bucket2] = 1;
+                    bins[bucket2][bucket1] = 1; // mirror the 2d array
+                }
+                else {
+                    bins[bucket1][bucket2] += 1;
+                    bins[bucket2][bucket1] += 1; // mirror the 2d array
+                }
+            }
+
+            console.log("Comparing " + Object.keys(data[0])[i] + " and " + Object.keys(data[0])[j]);
+            console.log(bins);
+        }
+    }
+    // At this point, all bins have created. The format is as follows.
+    // bins is a 2d array of dimension1, dimension2. It stores the relationship between two axes. 
+    // In each element of bins, such as bins[dimension1][dimension2], we have a numBins by numBins array recording relationships
+    // between those two axes. 
+
+    // End data processing
+    
     var render = renderQueue(draw).rate(30);
 
     ctx.clearRect(0,0,width,height);
@@ -290,9 +377,6 @@ d3.csv("age-alc.csv", function(error, data) {
         render(selected);
         // selected holds all of the lines! We can then look at it to see their grades.
         console.log(selected);
-        // Here, we can use a radial chart to show their grades!
-
-        //output.text(d3.tsvFormat(selected.slice(0,24)));
     }
 });
 
