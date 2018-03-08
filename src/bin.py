@@ -1,4 +1,5 @@
 import csv
+from statistics import median
 
 def print_bins(bins):
     for i in range(len(bins)):
@@ -67,7 +68,6 @@ def isolationFilter(threshold, grid):
                         empty_count += 1
                     if grid[1][num_bins - 1] == 0:
                         empty_count += 1
-                    pass
                 elif i + j == num_bins * 2:
                     if grid[num_bins - 1][num_bins - 2] == 0:
                         empty_count += 1
@@ -137,8 +137,96 @@ def isolationFilter(threshold, grid):
 
     return(res)
 
-def medianFilter():
-    pass
+"""
+Args: 
+threshold (10% of max freq)
+max_empty (number empty neighbors outlier can have [6])
+max_empty_border (number of border outlier can have [4])
+max_empty_corner (neighbors a corner outlier can have [2])
+grid
+
+Functionality:
+Returns outlier bins (list of tuples (x,y)) where the median of surroundings is
+less than 5% of max freq
+"""
+def medianFilter(threshold, grid):
+    med = int(threshold/2)
+    print('med is ' + str(med))
+    max_empty = 6
+    max_empty_border = 4
+    max_empty_corner = 2
+    res = []
+    num_bins = len(grid)
+    if num_bins <= 2:
+        return []
+    for i in range(num_bins):
+        for j in range(num_bins):
+            if grid[i][j] == 0 or grid[i][j] > threshold:
+                continue
+            else:
+                neighbors = [med]
+                checked = True
+                # check empty!
+                # corners - 3 surroundings
+                if i + j == 0:
+                    neighbors.append(grid[1][0])
+                    neighbors.append(grid[1][1])
+                    neighbors.append(grid[0][1])
+                elif (i == num_bins - 1 and j == 0):
+                    neighbors.append(grid[num_bins - 2][0])
+                    neighbors.append(grid[num_bins - 2][1])
+                    neighbors.append(grid[num_bins - 1][1])
+                elif (i == 0 and j == num_bins - 1):
+                    neighbors.append(grid[0][num_bins - 2])
+                    neighbors.append(grid[1][num_bins - 2])
+                    neighbors.append(grid[1][num_bins - 1])
+                elif i + j == num_bins * 2:
+                    neighbors.append(grid[num_bins - 1][num_bins - 2])
+                    neighbors.append(grid[num_bins - 2][num_bins - 2])
+                    neighbors.append(grid[num_bins - 2][num_bins - 1])
+                else:
+                    checked = False
+                if median(neighbors) < med:
+                    res.append((i, j))
+
+                if checked:
+                    continue
+                checked = True
+                # borders - 5 surroundings
+                if i == 0:
+                    neighbors.append(grid[1][j])
+                    neighbors.append(grid[1][j+1])
+                    neighbors.append(grid[1][j-1])
+                    neighbors.append(grid[0][j+1])
+                    neighbors.append(grid[0][j-1])
+                elif j == 0:
+                    neighbors.append(grid[j][1])
+                    neighbors.append(grid[j+1][1])
+                    neighbors.append(grid[j-1][1])
+                    neighbors.append(grid[j+1][0])
+                    neighbors.append(grid[j-1][0])
+                else:
+                    checked = False
+                if median(neighbors) < med:
+                    res.append((i,j))
+
+                if checked:
+                    continue
+
+                # center
+                if j > 0 and j < num_bins - 1 and i > 0 and i < num_bins - 1:
+                    neighbors.append(grid[i][j+1])
+                    neighbors.append(grid[i][j-1])
+                    neighbors.append(grid[i+1][j])
+                    neighbors.append(grid[i-1][j])
+                    neighbors.append(grid[i+1][j+1])
+                    neighbors.append(grid[i-1][j-1])
+                    neighbors.append(grid[i+1][j-1])
+                    neighbors.append(grid[i-1][j+1])
+                if median(neighbors) < med:
+                    res.append((i,j))
+
+    return(res)
 
 filename = 'age-alc'
 with open (filename + '.csv', 'r') as f:
@@ -182,7 +270,8 @@ if __name__ == '__main__':
 
             print('Comparing ' + str(dimensions[i]) + ' and ' + str(dimensions[j]))
             # Create outliers
-            outliers = isolationFilter(int(max_freq * 0.1), bins)
+            #outliers = isolationFilter(int(max_freq * 0.1), bins)
+            #outliers = medianFilter(int(max_freq * 0.1), bins)
             print_bins(bins)
             print(outliers)
             print('threshold: ' + str(int(max_freq * 0.1)))
