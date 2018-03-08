@@ -179,7 +179,7 @@ def medianFilter(threshold, grid):
             if grid[i][j] == 0 or grid[i][j] > threshold:
                 continue
             else:
-                neighbors = [med]
+                neighbors = []
                 checked = True
                 # check empty!
                 # corners - 3 surroundings
@@ -201,11 +201,12 @@ def medianFilter(threshold, grid):
                     neighbors.append(grid[num_bins - 2][num_bins - 1])
                 else:
                     checked = False
-                if median(neighbors) < med:
-                    res.append((i, j))
 
                 if checked:
+                    if median(neighbors) < med:
+                        res.append((i, j))
                     continue
+
                 checked = True
                 # borders - 5 surroundings
                 if i == 0:
@@ -222,10 +223,10 @@ def medianFilter(threshold, grid):
                     neighbors.append(grid[j-1][0])
                 else:
                     checked = False
-                if median(neighbors) < med:
-                    res.append((i,j))
 
                 if checked:
+                    if median(neighbors) < med:
+                        res.append((i, j))
                     continue
 
                 # center
@@ -238,7 +239,7 @@ def medianFilter(threshold, grid):
                     neighbors.append(grid[i-1][j-1])
                     neighbors.append(grid[i+1][j-1])
                     neighbors.append(grid[i-1][j+1])
-                if median(neighbors) < med:
+                if checked and median(neighbors) < med:
                     res.append((i,j))
 
     return(res)
