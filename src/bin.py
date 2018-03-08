@@ -1,6 +1,21 @@
 import csv
 from statistics import median
 
+def union_outliers(bin1, bin2):
+    return(list(set(bin1).union(set(bin2))))
+
+def intersect_outliers(bin1, bin2):
+    return(list(set(bin1) & set(bin2)))
+
+def getBuckets(val1, val2, min_dim_i, max_dim_i, min_dim_j, max_dim_j, num_bins):
+    bucket1 = int((val1 - min_dim_i) / (max_dim_i - min_dim_i) * 10)
+    bucket2 = int((val2 - min_dim_j) / (max_dim_j - min_dim_j) * 10)
+    if bucket1 == num_bins:
+        bucket1 -= 1
+    if bucket2 == num_bins:
+        bucket2 -= 1
+    return (bucket1, bucket2)
+
 def print_bins(bins):
     for i in range(len(bins)):
         for j in bins[i]:
@@ -241,6 +256,8 @@ if __name__ == '__main__':
     dimensions = text[0]
     num_dimensions = len(dimensions)
     axesbins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
+    # Given two axes i and j, axesoutliers[i][j] holds a list of (val1, val2) that are outliers. 
+    axesoutliers = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
     print(dimensions)
     
     # find max and min for each dimension; max[i] holds the max for the i'th dimension, or dimensions[i]
@@ -257,23 +274,35 @@ if __name__ == '__main__':
             max_freq = 0
             bins = [[0 for a in range(num_bins)] for b in range(num_bins)]
             for k in range(1, len(text)):
-                val1 = text[k][i]
-                val2 = text[k][j]
-                bucket1 = int((val1 - min_dim[i]) / (max_dim[i] - min_dim[i]) * 10)
-                bucket2 = int((val2 - min_dim[j]) / (max_dim[j] - min_dim[j]) * 10)
-                if bucket1 == num_bins:
-                    bucket1 -= 1
-                if bucket2 == num_bins:
-                    bucket2 -= 1
+                val1, val2 = text[k][i], text[k][j]
+                bucket1, bucket2 = getBuckets(val1, val2, min_dim[i], max_dim[i], min_dim[j], max_dim[j], num_bins)
+
                 bins[bucket1][bucket2] += 1
                 max_freq = max(max_freq, bins[bucket1][bucket2])
 
             print('Comparing ' + str(dimensions[i]) + ' and ' + str(dimensions[j]))
             # Create outliers
-            #outliers = isolationFilter(int(max_freq * 0.1), bins)
-            #outliers = medianFilter(int(max_freq * 0.1), bins)
+            isolation_bins = isolationFilter(int(max_freq * 0.1), bins)
+            median_bins = medianFilter(int(max_freq * 0.1), bins)
+
+            # optionally combine the results for outliers, could also use intersect.
+            outlier_bins = union_outliers(isolation_bins, median_bins)
+
+            # Get the original data points that actually relates to these outliers. 
+            outliers = []
+            for k in range(1, len(text)):
+                val1, val2 = text[k][i], text[k][j]
+                bucket1, bucket2 = getBuckets(val1, val2, min_dim[i], max_dim[i], min_dim[j], max_dim[j], num_bins)
+                if (bucket1, bucket2) in outlier_bins:
+                    outliers.append((val1, val2))
+
             print_bins(bins)
+            outliers = list(set(outliers))
+            print('outliers:')
             print(outliers)
+            print('outlier_bins:')
+            print(outlier_bins)
             print('threshold: ' + str(int(max_freq * 0.1)))
             axesbins[i][j] = bins
             axesbins[j][i] = bins
+            axesoutliers[i][j] = outliers
