@@ -1,6 +1,23 @@
 import csv
 from statistics import median
 
+def normalize(grid, total_max_freq, num_dimensions, num_bins):
+    normalized_bins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
+    ratio = 1 / total_max_freq
+
+    for i in range(1, num_dimensions):
+        for j in range(i+1, num_dimensions):
+            cur_pair = grid[i][j]
+            normalized_pair = [[0 for a in range(num_bins)] for b in range(num_bins)]
+            if cur_pair:
+                for x in range(num_bins):
+                    for y in range(num_bins):
+                        normalized_pair[x][y] = cur_pair[x][y] * ratio
+                print_bins(cur_pair)
+                print_bins(normalized_pair)
+            normalized_bins[i][j] = normalized_pair
+    return(normalized_bins)
+
 def union_outliers(bin1, bin2):
     return(list(set(bin1).union(set(bin2))))
 
@@ -265,6 +282,8 @@ if __name__ == '__main__':
     max_dim, min_dim = getMaxMin(text)
     print(max_dim)
     print(min_dim)
+
+    total_max_freq = 0
     
     # Create 2d array to store relationship between each pair of axes
     for i in range(1, num_dimensions):
@@ -272,7 +291,8 @@ if __name__ == '__main__':
             # compare the i'th and j'th dimensions
             # create a binxbin 2d array to store the relationship between each pair of axes
             
-            max_freq = 0
+            max_freq = float('-inf')
+            min_freq = float('inf')
             bins = [[0 for a in range(num_bins)] for b in range(num_bins)]
             for k in range(1, len(text)):
                 val1, val2 = text[k][i], text[k][j]
@@ -280,6 +300,8 @@ if __name__ == '__main__':
 
                 bins[bucket1][bucket2] += 1
                 max_freq = max(max_freq, bins[bucket1][bucket2])
+                min_freq = min(min_freq, bins[bucket1][bucket2])
+                total_max_freq = max(max_freq, total_max_freq)
 
             print('Comparing ' + str(dimensions[i]) + ' and ' + str(dimensions[j]))
             # Create outliers
@@ -297,13 +319,16 @@ if __name__ == '__main__':
                 if (bucket1, bucket2) in outlier_bins:
                     outliers.append((val1, val2))
 
-            print_bins(bins)
+            #print_bins(bins)
             outliers = list(set(outliers))
-            print('outliers:')
-            print(outliers)
-            print('outlier_bins:')
-            print(outlier_bins)
-            print('threshold: ' + str(int(max_freq * 0.1)))
+            #print('outliers:')
+            #print(outliers)
+            #print('outlier_bins:')
+            #print(outlier_bins)
+            #print('threshold: ' + str(int(max_freq * 0.1)))
             axesbins[i][j] = bins
             axesbins[j][i] = bins
             axesoutliers[i][j] = outliers
+
+    # normalize
+    axesbinsnormalized = normalize(axesbins, total_max_freq, num_dimensions, num_bins)
