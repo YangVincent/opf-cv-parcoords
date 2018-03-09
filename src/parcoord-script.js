@@ -182,8 +182,8 @@ d3.csv("test.csv", function(error, data) {
     }
     for (let i = 0; i < numDimensions; i++) {
         for (let j = 0; j < data.length; j++) {
-            minvals[i] = Math.min(minvals[i], data[j][dims[i]])
-            maxvals[i] = Math.max(maxvals[i], data[j][dims[i]])
+            minvals[i] = Math.min(minvals[i], data[j][dims[i]]);
+            maxvals[i] = Math.max(maxvals[i], data[j][dims[i]]);
         }
     }
     console.log(minvals);
@@ -206,10 +206,10 @@ d3.csv("test.csv", function(error, data) {
                 let bucket2 = Math.trunc((val2 - minvals[j])/(maxvals[j] - minvals[j]) * 10);
                 //console.log('val1: ' + val1 + ', min: ' + minvals[i] + ', max: ' + maxvals[i] + ', bucket: ' + bucket1);
                 //console.log('val2: ' + val2 + ', min: ' + minvals[j] + ', max: ' + maxvals[j] + ', bucket: ' + bucket2);
-                if (bucket1 == numBins) {
+                if (bucket1 === numBins) {
                     bucket1 = numBins-1;
                 }
-                if (bucket2 == numBins) {
+                if (bucket2 === numBins) {
                     bucket2 = numBins-1;
                 }
                 if (bins[bucket1][bucket2] == null){
@@ -308,7 +308,7 @@ d3.csv("test.csv", function(error, data) {
                 return;
             }
 
-            if (i == 0) {
+            if (i === 0) {
                 ctx.moveTo(p[0],p[1]);
                 return;
             }
@@ -386,4 +386,4 @@ d3.csv("test.csv", function(error, data) {
 
 function d3_functor(v) {
     return typeof v === "function" ? v : function() { return v; };
-};
+}
