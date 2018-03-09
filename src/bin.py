@@ -5,10 +5,31 @@ import scipy as sp
 import scipy.ndimage
 from statistics import median
 
+"""
+Write out 2d axis data 
+"""
+def output(filename, bins):
+    with open(filename, 'w') as out:
+        for i in range(len(bins)):
+            out.write(str(bins[i]))
+            out.write('\n')
+
+"""
+Cluster data points for user interaction with focus
+"""
 def cluster(bins, num_bins):
-    return(gaus_filter(bins, num_bins))
+    # smooth out the data with gaussian filter
+    gaus_bins = gaus_filter(bins, num_bins)
+
+    # iteratively go from the most frequent to 10% of the most frequent
+    # when a block may be added to both clusters, add it to the one with the closest 
+    # peak height
+    return(gaus_bins)
 
 
+"""
+Smooth out 2d bin data using gaussian filter
+"""
 def gaus_filter(bins, num_bins):
     # find standard deviation of each dimension
     # use https://stackoverflow.com/questions/33548639/how-can-i-smooth-elements-of-a-two-dimensional-array-with-differing-gaussian-fun
@@ -22,14 +43,14 @@ def gaus_filter(bins, num_bins):
 
     res = sp.ndimage.filters.gaussian_filter(np_bins, sigma, mode='constant')
     # Show results visually; helps for tuning alpha
-    #pl.imshow(np_bins, cmap='Blues', interpolation='nearest')
-    #pl.xlabel("$x$")
-    #pl.ylabel("$y$")
-    #pl.savefig("array.png")
-    #pl.imshow(res, cmap='Blues', interpolation='nearest')
-    #pl.xlabel("$x$")
-    #pl.ylabel("$y$")
-    #pl.savefig("array2.png")
+    pl.imshow(np_bins, cmap='Blues', interpolation='nearest')
+    pl.xlabel("$x$")
+    pl.ylabel("$y$")
+    pl.savefig("array.png")
+    pl.imshow(res, cmap='Blues', interpolation='nearest')
+    pl.xlabel("$x$")
+    pl.ylabel("$y$")
+    pl.savefig("array2.png")
     return(res)
 
 def normalize(grid, total_max_freq, num_dimensions, num_bins):
@@ -44,8 +65,8 @@ def normalize(grid, total_max_freq, num_dimensions, num_bins):
                 for x in range(num_bins):
                     for y in range(num_bins):
                         normalized_pair[x][y] = cur_pair[x][y] * ratio
-                print_bins(cur_pair)
-                print_bins(normalized_pair)
+                #print_bins(cur_pair)
+                #print_bins(normalized_pair)
             normalized_bins[i][j] = normalized_pair
     return(normalized_bins)
 
@@ -335,7 +356,7 @@ if __name__ == '__main__':
                 min_freq = min(min_freq, bins[bucket1][bucket2])
                 total_max_freq = max(max_freq, total_max_freq)
 
-            print('Comparing ' + str(dimensions[i]) + ' and ' + str(dimensions[j]))
+            #print('Comparing ' + str(dimensions[i]) + ' and ' + str(dimensions[j]))
             # Create outliers
             isolation_bins = isolationFilter(int(max_freq * 0.1), bins)
             median_bins = medianFilter(int(max_freq * 0.1), bins)
@@ -368,3 +389,6 @@ if __name__ == '__main__':
 
     # normalize
     axesbinsnormalized = normalize(axesbins, total_max_freq, num_dimensions, num_bins)
+
+    output('normalized_trends.txt', axesbinsnormalized)
+    output('outliers.txt', axesoutliers)
