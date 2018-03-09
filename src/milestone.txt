@@ -1,6 +1,6 @@
 9 March 2018
-Wang, Bradley
-Yang, Vincent
+Wang, Bradley (912287270)
+Yang, Vincent (912222976)
 
 Final Project Milestone
   Outlier-preserving Focus+Context Visualization in Parallel Coordinates
