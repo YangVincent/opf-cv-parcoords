@@ -1,15 +1,15 @@
-var margin = {top: 66, right: 110, bottom: 20, left: 188},
+let margin = {top: 66, right: 110, bottom: 20, left: 188},
     width = document.body.clientWidth - margin.left - margin.right,
     height = 340 - margin.top - margin.bottom,
     innerHeight = height - 2;
 
-var devicePixelRatio = window.devicePixelRatio || 1;
+let devicePixelRatio = window.devicePixelRatio || 1;
 
-var color = d3.scaleOrdinal()
+let color = d3.scaleOrdinal()
     .domain(["Radial Velocity", "Imaging", "Eclipse Timing Variations", "Astrometry", "Microlensing", "Orbital Brightness Modulation", "Pulsar Timing", "Pulsation Timing Variations", "Transit", "Transit Timing Variations"])
     .range(["#DB7F85", "#50AB84", "#4C6C86", "#C47DCB", "#B59248", "#DD6CA7", "#E15E5A", "#5DA5B3", "#725D82", "#54AF52", "#954D56", "#8C92E8", "#D8597D", "#AB9C27", "#D67D4B", "#D58323", "#BA89AD", "#357468", "#8F86C2", "#7D9E33", "#517C3F", "#9D5130", "#5E9ACF", "#776327", "#944F7E"]);
 
-var types = {
+let types = {
     "Number": {
         key: "Number",
         coerce: function(d) { return +d; },
@@ -33,7 +33,7 @@ var types = {
     }
 };
 
-var printBin = function(bins) {
+let printBin = function(bins) {
     for (let i = 0; i < bins.length; i++) {
         for (let j = 0; j < bins[i].length; j++){
             console.log(bins[i][j])
@@ -41,9 +41,9 @@ var printBin = function(bins) {
         console.log('');
     }
 
-}
+};
 
-var dimensions = [
+let dimensions = [
     {
         key: "Dalc",
         description: "Dalc",
@@ -84,24 +84,24 @@ var dimensions = [
 ];
 
 
-var xscale = d3.scalePoint()
+let xscale = d3.scalePoint()
     .domain(d3.range(dimensions.length))
     .range([0, width]);
 
-var yAxis = d3.axisLeft();
+let yAxis = d3.axisLeft();
 
-var container = d3.select("body").append("div")
+const container = d3.select("body").append("div")
     .attr("class", "parcoords")
     .style("width", width + margin.left + margin.right + "px")
     .style("height", height + margin.top + margin.bottom + "px");
 
-var svg = container.append("svg")
+const svg = container.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var canvas = container.append("canvas")
+const canvas = container.append("canvas")
     .attr("width", width * devicePixelRatio)
     .attr("height", height * devicePixelRatio)
     .style("width", width + "px")
@@ -109,7 +109,7 @@ var canvas = container.append("canvas")
     .style("margin-top", margin.top + "px")
     .style("margin-left", margin.left + "px");
 
-var ctx = canvas.node().getContext("2d");
+const ctx = canvas.node().getContext("2d");
 ctx.globalCompositeOperation = 'darken';
 ctx.globalAlpha = 0.15;
 //ctx.lineWidth = 1.5;
@@ -118,13 +118,17 @@ ctx.lineCap = 'round';
 ctx.lineWidth = 50;
 ctx.scale(devicePixelRatio, devicePixelRatio);
 
-var output = d3.select("body").append("pre");
+const output = d3.select("body").append("pre");
 
-var axes = svg.selectAll(".axis")
+const axes = svg.selectAll(".axis")
     .data(dimensions)
     .enter().append("g")
-    .attr("class", function(d) { return "axis " + d.key.replace(/ /g, "_"); })
-    .attr("transform", function(d,i) { return "translate(" + xscale(i) + ")"; });
+    .attr("class", function (d) {
+        return "axis " + d.key.replace(/ /g, "_");
+    })
+    .attr("transform", function (d, i) {
+        return "translate(" + xscale(i) + ")";
+    });
 
 //d3.csv("planets.csv", function(error, data) {
 d3.csv("test.csv", function(error, data) {
@@ -136,7 +140,7 @@ d3.csv("test.csv", function(error, data) {
         });
 
         // truncate long text strings to fit in data table
-        for (var key in d) {
+        for (let key in d) {
             if (d[key] && d[key].length > 35) d[key] = d[key].slice(0,36);
         }
     });
@@ -157,29 +161,29 @@ d3.csv("test.csv", function(error, data) {
     // Do data processing here
     console.log(data);
     console.log(Object.keys(data[0]));
-    var numBins = 10;
-    var dims = Object.keys(data[0]);
-    var numDimensions = dims.length;
-    
+    const numBins = 10;
+    const dims = Object.keys(data[0]);
+    const numDimensions = dims.length;
+
 
     // create 2d array to represent every possible combination.
-    var comb = new Array(numDimensions);
-    for (var i = 0; i < numDimensions; i++) {
+    const comb = new Array(numDimensions);
+    for (let i = 0; i < numDimensions; i++) {
         comb[i] = new Array(numDimensions);
         console.log(Object.keys(data[0])[i]);
     }
 
     // find min, max for each
-    var minvals = new Array(numDimensions);
-    var maxvals = new Array(numDimensions);
+    const minvals = new Array(numDimensions);
+    const maxvals = new Array(numDimensions);
     for (let i = 0; i < numDimensions; i++) {
         minvals[i] = data[0][dims[i]];
         maxvals[i] = data[0][dims[i]];
     }
     for (let i = 0; i < numDimensions; i++) {
         for (let j = 0; j < data.length; j++) {
-            minvals[i] = Math.min(minvals[i], data[j][dims[i]])
-            maxvals[i] = Math.max(maxvals[i], data[j][dims[i]])
+            minvals[i] = Math.min(minvals[i], data[j][dims[i]]);
+            maxvals[i] = Math.max(maxvals[i], data[j][dims[i]]);
         }
     }
     console.log(minvals);
@@ -190,7 +194,7 @@ d3.csv("test.csv", function(error, data) {
     for (let i = 1; i < numDimensions; i++) {
         for (let j = i+1; j < numDimensions; j++) {
             // between each pair of axes, we need to create a 2 by 2 array of numBins
-            var bins = new Array(numBins);
+            const bins = new Array(numBins);
             for (let k = 0; k < numBins; k++) {
                 bins[k] = Array.apply(null, Array(numBins)).map(Number.prototype.valueOf,0);
             }
@@ -202,10 +206,10 @@ d3.csv("test.csv", function(error, data) {
                 let bucket2 = Math.trunc((val2 - minvals[j])/(maxvals[j] - minvals[j]) * 10);
                 //console.log('val1: ' + val1 + ', min: ' + minvals[i] + ', max: ' + maxvals[i] + ', bucket: ' + bucket1);
                 //console.log('val2: ' + val2 + ', min: ' + minvals[j] + ', max: ' + maxvals[j] + ', bucket: ' + bucket2);
-                if (bucket1 == numBins) {
+                if (bucket1 === numBins) {
                     bucket1 = numBins-1;
                 }
-                if (bucket2 == numBins) {
+                if (bucket2 === numBins) {
                     bucket2 = numBins-1;
                 }
                 if (bins[bucket1][bucket2] == null){
@@ -228,8 +232,8 @@ d3.csv("test.csv", function(error, data) {
     // between those two axes. 
 
     // End data processing
-    
-    var render = renderQueue(draw).rate(30);
+
+    const render = renderQueue(draw).rate(30);
 
     ctx.clearRect(0,0,width,height);
     ctx.globalAlpha = d3.min([1.15/Math.pow(data.length,0.3),1]);
@@ -237,7 +241,7 @@ d3.csv("test.csv", function(error, data) {
 
     axes.append("g")
         .each(function(d) {
-            var renderAxis = "axis" in d
+            const renderAxis = "axis" in d
                 ? d.axis.scale(d.scale)  // custom axis
                 : yAxis.scale(d.scale);  // default axis
             d3.select(this).call(renderAxis);
@@ -282,21 +286,21 @@ d3.csv("test.csv", function(error, data) {
     function draw(d) {
         ctx.strokeStyle = color(d.age);
         ctx.beginPath();
-        var coords = project(d);
+        const coords = project(d);
         coords.forEach(function(p,i) {
             // this tricky bit avoids rendering null values as 0
             if (p === null) {
                 // this bit renders horizontal lines on the previous/next
                 // dimensions, so that sandwiched null values are visible
                 if (i > 0) {
-                    var prev = coords[i-1];
+                    const prev = coords[i - 1];
                     if (prev !== null) {
                         ctx.moveTo(prev[0],prev[1]);
                         ctx.lineTo(prev[0]+6,prev[1]);
                     }
                 }
                 if (i < coords.length-1) {
-                    var next = coords[i+1];
+                    const next = coords[i + 1];
                     if (next !== null) {
                         ctx.moveTo(next[0]-6,next[1]);
                     }
@@ -304,7 +308,7 @@ d3.csv("test.csv", function(error, data) {
                 return;
             }
 
-            if (i == 0) {
+            if (i === 0) {
                 ctx.moveTo(p[0],p[1]);
                 return;
             }
@@ -322,7 +326,7 @@ d3.csv("test.csv", function(error, data) {
     function brush() {
         render.invalidate();
 
-        var actives = [];
+        const actives = [];
         svg.selectAll(".axis .brush")
             .filter(function(d) {
                 return d3.brushSelection(this);
@@ -334,12 +338,12 @@ d3.csv("test.csv", function(error, data) {
                 });
             });
 
-        var selected = data.filter(function(d) {
-            if (actives.every(function(active) {
-                var dim = active.dimension;
-                // test if point is within extents for each active brush
-                return dim.type.within(d[dim.key], active.extent, dim);
-            })) {
+        const selected = data.filter(function (d) {
+            if (actives.every(function (active) {
+                    const dim = active.dimension;
+                    // test if point is within extents for each active brush
+                    return dim.type.within(d[dim.key], active.extent, dim);
+                })) {
                 return true;
             }
         });
@@ -382,4 +386,4 @@ d3.csv("test.csv", function(error, data) {
 
 function d3_functor(v) {
     return typeof v === "function" ? v : function() { return v; };
-};
+}
