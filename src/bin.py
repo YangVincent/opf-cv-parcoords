@@ -1,5 +1,36 @@
 import csv
+import matplotlib.pyplot as pl
+import numpy as np
+import scipy as sp
+import scipy.ndimage
 from statistics import median
+
+def cluster(bins, num_bins):
+    return(gaus_filter(bins, num_bins))
+
+
+def gaus_filter(bins, num_bins):
+    # find standard deviation of each dimension
+    # use https://stackoverflow.com/questions/33548639/how-can-i-smooth-elements-of-a-two-dimensional-array-with-differing-gaussian-fun
+    # convert to numpy array
+    np_bins = np.array(bins)
+    # Use average std dev as sigma
+    sigma = [sum(np.std(np_bins, axis=0))/num_bins, sum(np.std(np_bins, axis=1))/num_bins]
+    std = np.std(np_bins, dtype=np.float64)
+    #sigma = [std, std]
+    sigma = [0.5,0.5]
+
+    res = sp.ndimage.filters.gaussian_filter(np_bins, sigma, mode='constant')
+    # Show results visually; helps for tuning alpha
+    #pl.imshow(np_bins, cmap='Blues', interpolation='nearest')
+    #pl.xlabel("$x$")
+    #pl.ylabel("$y$")
+    #pl.savefig("array.png")
+    #pl.imshow(res, cmap='Blues', interpolation='nearest')
+    #pl.xlabel("$x$")
+    #pl.ylabel("$y$")
+    #pl.savefig("array2.png")
+    return(res)
 
 def normalize(grid, total_max_freq, num_dimensions, num_bins):
     normalized_bins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
@@ -274,6 +305,7 @@ if __name__ == '__main__':
     dimensions = text[0]
     num_dimensions = len(dimensions)
     axesbins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
+    clusterbins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
     # Given two axes i and j, axesoutliers[i][j] holds a list of (val1, val2) that are outliers. 
     axesoutliers = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
     print(dimensions)
@@ -328,6 +360,10 @@ if __name__ == '__main__':
             #print('threshold: ' + str(int(max_freq * 0.1)))
             axesbins[i][j] = bins
             axesbins[j][i] = bins
+
+            # clustering
+            clusterbins[i][j] = cluster(bins, num_bins)
+
             axesoutliers[i][j] = outliers
 
     # normalize
