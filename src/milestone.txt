@@ -1,3 +1,10 @@
+9 March 2018
+Wang, Bradley
+Yang, Vincent
+
+Final Project Milestone
+  Outlier-preserving Focus+Context Visualization in Parallel Coordinates
+
 So far, we have completed:
 1. Outlier detection
 2. Trend detection
@@ -6,14 +13,14 @@ So far, we have completed:
 
 
 Clustering is in progress as is developing the parallel coordinates system.
-We originally had a parallel coordinates system in place, (still available in this zip)
-but it is not adequate for letting us draw polygons to represent the trends. As such,
-we are currently experimenting with using OpenGL with d3 to allow us to draw the
-primary trends. If time permits, we will also add shading. 
+We originally had a parallel coordinates system in place, (still available in
+this zip) but it is not optimal for letting us draw polygons to represent the
+trends. As such, we are currently experimenting with using OpenGL with d3 to
+allow us to draw the primary trends. If time permits, we will also add shading.
 
 The current preprocessing is done in `bin.py`, and there are two output
-files that demonstrate the outlier detection, trend detection, and clustering. 
+files that demonstrate the outlier detection, trend detection, and clustering.
 These are `normalized_trends.txt` and `outliers.txt`.
 
-Our next steps are simply to take these files, read them into JS, and display them
-with the parcoords system. 
+Our next steps are simply to take these files, read them into JS, and display
+them with the parcoords system. 
