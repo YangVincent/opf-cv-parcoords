@@ -14,6 +14,16 @@ def output(filename, bins):
             out.write(str(bins[i]))
             out.write('\n')
 
+def getNeighbors(x,y):
+    if x == 0 and y == 0:
+        return [(0,1), (1,1), (1,0)]
+    elif x == 0:
+        return [(0,y+1), (0,y-1), (1,y+1), (1,y), (1,y-1)]
+    elif y == 0:
+        return [(x,1), (x+1,0), (x-1,0), (x+1,1), (x-1,1)]
+    else:
+        return([(x,y+1), (x,y-1), (x+1,y+1), (x+1,y-1), (x-1,y+1), (x-1,y-1), (x+1, y), (x-1, y)])
+
 """
 Cluster data points for user interaction with focus
 """
@@ -24,7 +34,44 @@ def cluster(bins, num_bins):
     # iteratively go from the most frequent to 10% of the most frequent
     # when a block may be added to both clusters, add it to the one with the closest 
     # peak height
-    return(gaus_bins)
+    
+    clusters = {}
+    # find the order of coordinates sorted by frequency
+    l = []
+    for i in range(num_bins):
+        for j in range(num_bins):
+            if gaus_bins[i][j] != 0:
+                l.append((gaus_bins[i][j], (i, j))) # freq, tuple coordinates
+    l.sort(key=lambda x: x[0], reverse=True)
+
+    cluster_map = [[0 for a in range(num_bins)] for b in range(num_bins)]
+    max_freq = l[0][0]
+    for freq, tup in l:
+        if freq <= max_freq * 0.1:
+            return(clusters)
+        # if neighbors in clusters:
+        neighbors = getNeighbors(tup[0], tup[1])
+        potentials = []
+        for neighbor in neighbors:
+            if neighbor in clusters:
+                potentials.append(clusters[neighbor])
+        # new cluster
+        if len(neighbors) == 0:
+            clusters[tup] = freq
+            cluster_map[tup[0]][tup[1]] = freq
+        # join to existing cluster
+        else:
+            min_freq = float('inf')
+            for i in range(0, len(neighbors)):
+                if neighbors[i] in clusters:
+                    min_freq = min(min_freq, clusters[neighbors[i]])
+            # first of its neighbors (new cluster)
+            if min_freq == float('inf'):
+                min_freq = freq
+            clusters[tup] = min_freq
+            cluster_map[tup[0]][tup[1]] = min_freq
+    return(cluster_map)
+    #return(clusters)
 
 
 """
@@ -51,7 +98,8 @@ def gaus_filter(bins, num_bins):
     pl.xlabel("$x$")
     pl.ylabel("$y$")
     pl.savefig("array2.png")
-    return(res)
+
+    return(res.tolist())
 
 def normalize(grid, total_max_freq, num_dimensions, num_bins):
     normalized_bins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
@@ -235,7 +283,7 @@ less than 5% of max freq
 """
 def medianFilter(threshold, grid):
     med = int(threshold/2)
-    print('med is ' + str(med))
+    #print('med is ' + str(med))
     max_empty = 6
     max_empty_border = 4
     max_empty_corner = 2
@@ -392,3 +440,4 @@ if __name__ == '__main__':
 
     output('normalized_trends.txt', axesbinsnormalized)
     output('outliers.txt', axesoutliers)
+    output('clusters.txt', clusterbins)
