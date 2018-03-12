@@ -1,9 +1,27 @@
+import json
 import csv
 import matplotlib.pyplot as pl
 import numpy as np
 import scipy as sp
 import scipy.ndimage
 from statistics import median
+
+def writejson(filename, bins, outliers, clusters):
+    l = []
+
+    with open(filename, 'w') as out:
+        for i in range(len(bins)):
+            for j in range(len(bins)):
+                dict = {}
+                dict['bins'] = str(bins[i][j])
+                dict['outliers'] = str(outliers[i][j])
+                dict['clusters'] = str(clusters)
+                #print(dict)
+                #s = json.dumps(dict, separators=(',', ':'))
+                #out.write(s)
+                l.append(dict)
+        s = json.dumps(l, separators=(',', ':'))
+        out.write(s)
 
 """
 Write out 2d axis data 
@@ -441,3 +459,4 @@ if __name__ == '__main__':
     output('normalized_trends.txt', axesbinsnormalized)
     output('outliers.txt', axesoutliers)
     output('clusters.txt', clusterbins)
+    writejson('output.json', axesbinsnormalized, axesoutliers, clusterbins)
