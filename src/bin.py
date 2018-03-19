@@ -6,22 +6,37 @@ import scipy as sp
 import scipy.ndimage
 from statistics import median
 
-def writejson(filename, bins, outliers, clusters):
-    l = []
+def no_str_keys(d):
+    if not d:
+        return d
+    for k in d.keys():
+        if type(k) is not str:
+            try:
+                d[str(k)] = d[k]
+            except:
+                try:
+                    d[repr(k)] = d[k]
+                except:
+                    pass
+            del i[k]
+    return(d)
+
+def writejson(filename, bins, outliers, clusters, num_dimensions):
+    l = [[None for i in range(num_dimensions)] for j in range(num_dimensions)]
 
     with open(filename, 'w') as out:
-        for i in range(len(bins)):
-            for j in range(len(bins)):
-                dict = {}
-                dict['bins'] = str(bins[i][j])
-                dict['outliers'] = str(outliers[i][j])
-                dict['clusters'] = str(clusters)
-                #print(dict)
-                #s = json.dumps(dict, separators=(',', ':'))
-                #out.write(s)
-                l.append(dict)
+        for i in range(num_dimensions):
+            for j in range(num_dimensions):
+                di = {}
+
+                di['bins'] = (bins[i][j]) # num_bins x num_bins; each has stuff
+                di['outliers'] = ((outliers[i][j]))
+                di['clusters'] = (clusters)
+
+                l[i][j] = di
         s = json.dumps(l, separators=(',', ':'))
         out.write(s)
+
 
 """
 Write out 2d axis data 
@@ -75,7 +90,7 @@ def cluster(bins, num_bins):
                 potentials.append(clusters[neighbor])
         # new cluster
         if len(neighbors) == 0:
-            clusters[tup] = freq
+            clusters[str(tup)] = freq
             cluster_map[tup[0]][tup[1]] = freq
         # join to existing cluster
         else:
@@ -86,7 +101,7 @@ def cluster(bins, num_bins):
             # first of its neighbors (new cluster)
             if min_freq == float('inf'):
                 min_freq = freq
-            clusters[tup] = min_freq
+            clusters[str(tup)] = min_freq
             cluster_map[tup[0]][tup[1]] = min_freq
     return(cluster_map)
     #return(clusters)
@@ -395,12 +410,12 @@ if __name__ == '__main__':
     clusterbins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
     # Given two axes i and j, axesoutliers[i][j] holds a list of (val1, val2) that are outliers. 
     axesoutliers = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
-    print(dimensions)
+    #print(dimensions)
     
     # find max and min for each dimension; max[i] holds the max for the i'th dimension, or dimensions[i]
     max_dim, min_dim = getMaxMin(text)
-    print(max_dim)
-    print(min_dim)
+    #print(max_dim)
+    #print(min_dim)
 
     total_max_freq = 0
     
@@ -459,4 +474,4 @@ if __name__ == '__main__':
     output('normalized_trends.txt', axesbinsnormalized)
     output('outliers.txt', axesoutliers)
     output('clusters.txt', clusterbins)
-    writejson('output.json', axesbinsnormalized, axesoutliers, clusterbins)
+    writejson('output.json', axesbinsnormalized, axesoutliers, clusterbins, num_dimensions)
