@@ -102,6 +102,7 @@ def cluster(bins, num_bins):
             if min_freq == float('inf'):
                 min_freq = freq
             clusters[str(tup)] = min_freq
+
             cluster_map[tup[0]][tup[1]] = min_freq
     return(cluster_map)
     #return(clusters)
@@ -414,8 +415,10 @@ if __name__ == '__main__':
     
     # find max and min for each dimension; max[i] holds the max for the i'th dimension, or dimensions[i]
     max_dim, min_dim = getMaxMin(text)
-    #print(max_dim)
-    #print(min_dim)
+    with open('metadata.txt', 'w') as out:
+        out.write(str(text[0]) + '\n')
+        out.write(str(max_dim) + '\n')
+        out.write(str(min_dim))
 
     total_max_freq = 0
     
