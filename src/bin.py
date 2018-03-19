@@ -415,10 +415,13 @@ if __name__ == '__main__':
     
     # find max and min for each dimension; max[i] holds the max for the i'th dimension, or dimensions[i]
     max_dim, min_dim = getMaxMin(text)
-    with open('metadata.txt', 'w') as out:
-        out.write(str(text[0]) + '\n')
-        out.write(str(max_dim) + '\n')
-        out.write(str(min_dim))
+    with open('metadata.json', 'w') as out:
+        d = {}
+        d['labels'] = (text[0]) 
+        d['max'] = max_dim
+        d['min'] = min_dim
+        s = json.dumps(d, separators=(',', ':'))
+        out.write(s)
 
     total_max_freq = 0
     
