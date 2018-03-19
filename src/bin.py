@@ -104,8 +104,8 @@ def cluster(bins, num_bins):
             clusters[str(tup)] = min_freq
 
             cluster_map[tup[0]][tup[1]] = min_freq
-    return(cluster_map)
-    #return(clusters)
+    #return(cluster_map)
+    return(clusters)
 
 
 """
@@ -470,7 +470,18 @@ if __name__ == '__main__':
             axesbins[j][i] = bins
 
             # clustering
-            clusterbins[i][j] = cluster(bins, num_bins)
+            c = cluster(bins, num_bins)
+            print(c)
+            # invert clusters for formatting. Make it key(cluster#) -> array of locations
+            cluster_d = {}
+            for k in c.keys():
+                if c[k] in cluster_d:
+                    cluster_d[c[k]].append(k)
+                else:
+                    cluster_d[c[k]] = [k]
+                
+            print(cluster_d)
+            clusterbins[i][j] = cluster_d
 
             axesoutliers[i][j] = outliers
 
