@@ -149,7 +149,7 @@ def normalize(grid, total_max_freq, num_dimensions, num_bins):
     normalized_bins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
     ratio = 1 / total_max_freq
 
-    for i in range(1, num_dimensions):
+    for i in range(0, num_dimensions):
         for j in range(i+1, num_dimensions):
             cur_pair = grid[i][j]
             normalized_pair = [[0 for a in range(num_bins)] for b in range(num_bins)]
@@ -406,6 +406,7 @@ def medianFilter(threshold, grid):
     return(res)
 
 filename = 'age-alc'
+#filename = 'test'
 with open (filename + '.csv', 'r') as f:
     reader = csv.reader(f, delimiter = ',', quoting=csv.QUOTE_NONNUMERIC)
     text = []
