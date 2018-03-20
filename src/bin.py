@@ -24,18 +24,28 @@ def no_str_keys(d):
 def writejson(filename, bins, outliers, clusters, num_dimensions):
     l = [[None for i in range(num_dimensions)] for j in range(num_dimensions)]
 
-    with open(filename, 'w') as out:
-        for i in range(num_dimensions):
-            for j in range(num_dimensions):
-                di = {}
+    #with open(filename, 'w') as out:
+    #    for i in range(num_dimensions):
+    #        for j in range(num_dimensions):
+    #            di = {}
 
-                di['bins'] = (bins[i][j]) # num_bins x num_bins; each has stuff
-                di['outliers'] = ((outliers[i][j]))
-                di['clusters'] = (clusters)
+    #            di['bins'] = (bins[i][j]) # num_bins x num_bins; each has stuff
+    #            di['outliers'] = ((outliers[i][j]))
+    #            di['clusters'] = (clusters)
 
-                l[i][j] = di
-        s = json.dumps(l, separators=(',', ':'))
-        out.write(s)
+    #            l[i][j] = di
+    #    s = json.dumps(l, separators=(',', ':'))
+    #    out.write(s)
+    for i in range(num_dimensions):
+        for j in range(num_dimensions):
+            di = {}
+
+            di['bins'] = (bins[i][j]) # num_bins x num_bins; each has stuff
+            di['outliers'] = ((outliers[i][j]))
+            di['clusters'] = (clusters)
+
+            l[i][j] = di
+    return(l)
 
 
 """
@@ -415,13 +425,6 @@ if __name__ == '__main__':
     
     # find max and min for each dimension; max[i] holds the max for the i'th dimension, or dimensions[i]
     max_dim, min_dim = getMaxMin(text)
-    with open('metadata.json', 'w') as out:
-        d = {}
-        d['labels'] = (text[0]) 
-        d['max'] = max_dim
-        d['min'] = min_dim
-        s = json.dumps(d, separators=(',', ':'))
-        out.write(s)
 
     total_max_freq = 0
     
@@ -491,4 +494,12 @@ if __name__ == '__main__':
     output('normalized_trends.txt', axesbinsnormalized)
     output('outliers.txt', axesoutliers)
     output('clusters.txt', clusterbins)
-    writejson('output.json', axesbinsnormalized, axesoutliers, clusterbins, num_dimensions)
+    output_data = writejson('output.json', axesbinsnormalized, axesoutliers, clusterbins, num_dimensions)
+    with open('output.json', 'w') as out:
+        d = {}
+        d['labels'] = (text[0]) 
+        d['max'] = max_dim
+        d['min'] = min_dim
+        d['data'] = output_data
+        s = json.dumps(d, separators=(',', ':'))
+        out.write(s)
