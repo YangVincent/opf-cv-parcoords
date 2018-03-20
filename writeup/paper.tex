@@ -94,10 +94,30 @@
 \thispagestyle{fancy} 								% Enabling the custom headers/footers for the first page 
 
 
-
 \section {Goal and Approach}
-Our goal in this project was to create a parallel coordinates system that would make outliers and primary trends extremely obvious for the viewer. The system should scale well with large datasets and be an effective tool for finding interesting relationships or outliers. 
-Our approach is to implement the same ideas as from the paper. To scale with large datasets, we would simplify large datasets down to a normalized set of trends and outliers, then display these trends/outliers instead. Clustering would enable the user to find unique/interesting trends via. interaction, although this is a supplementary feature. 
+Our goal in this project was to create a parallel coordinates system that would make outliers and primary trends extremely obvious for the viewer. The system should scale well with large datasets and be an effective tool for finding interesting relationships or outliers. This would allow us
+to scale with large datasets.
+
+As for personal goals, this is our first time implementing a visualization paper, so we
+hope to learn about what goes into a research paper furthering visualization. 
+Thus far in class, we have only seen the end results and learned about using others' tools,
+but haven't created our own. 
+
+Our approach is to for precompute the data we need. This would involve (a) binning the data, (b) figuring out 
+where the main trends are, (c) figuring out where the outliers are, and (d) figuring out where the clusters are. 
+For binning the data, we will look at every combination of 2 axes just as they specify in the paper. Of each pair,
+we will create a table of bins representing the frequency of certain bin combinations. With these, we will take the
+more populated bins and call them our trends, then finding the outliers by using median and isolation filters.
+
+Clustering will involve using gaussian smoothing then iteratively moving from more populated bins
+to less populated bins to determine where interesting clusters might lie. 
+
+Once we have precomputed this data, we will plot it on our system with d3 and webgl. d3 creates
+the axes and labels, and supports the ability to move axes around. Webgl will display our polygons for
+representing trends as well as drawing the outliers. This would also take care of the textures for us. 
+
+To run the precomputing script on data.csv with 10 bins per axis, run \texttt{python3 bin.py data 10}. The input
+data should have no quotes and end in \texttt{.csv}.
 
 
 \section {Our Experience}
@@ -109,20 +129,21 @@ and pictures also gave us a strong idea on the benefits of their method. I learn
 how people in visualization have to think about the reality of their visualization methods -- that computing might take a long time or the screen might not be large enough. 
 
 \subsection {Negatives}
-We found the paper a little bit difficult to make sense of. The title of the paper implied that it would focus on outlier and focus, but it didn’t distinguish the difference between outlier and focus particularly well. This made working on the implementation rather difficult, as we had to read significantly more background literature than previously expected. 
+We found the paper quite difficult to make sense of. The title of the paper implied that it would focus on outlier and focus, but it didn’t distinguish the difference between outlier and focus particularly well. This made working on the implementation rather difficult, as we had to read significantly more background literature than previously expected. 
 We also found that the paper was somewhat misleading. It promotes efficiency via calculating bucket frequency to accentuate features with parallel coordinates plots. A large part of the paper focuses on the speed benefits of this approach. They also mention that buckets should be calculated between pairs of axes, implying that you would only need to calculate $n-1$ axes pairs where $n$ is the number of axes. However, this is not true at all. Later on in the paper, they bring up the point that if you actually want to be able to reorder the axes (a common feature in parallel coordinates), then you would have to calculate frequencies for every possible combination of axes. This is far more than before! With this, we lose much of the speedup we previously obtained with their method. 
 Initially, we implemented the preprocessing by using JavaScript, but found that using Python to precompute the buckets as opposed to computing on page-load made far more sense for the user. With this, the user could simply load data as opposed to processing then loading. 
 Some challenges I faced with precomputing was figuring out how to use gaussian smoothing. In the paper, they simply mentioned that it was a common technique in visualization then linked to an early paper regarding gaussian smoothing. This helped very little with my understanding for what to do. I ended up finding blog posts teaching me how to do 2D gaussian smoothing. In the current implementation, we had to look at various smoothnesses dataset by dataset to determine which alpha value (how much to smooth) for each dataset. From what we could find, the proper value should be the standard deviation. Yet with many datasets, we would get completely uniform data, making the data too smooth. In their implementation, they likely found a better way to run smoothing for displaying/calculating the focus. 
 Another issue with focus is that they never described how the user would interact with their system to specify which areas to focus on. In traditional parallel coordinates, the user may “scrub” an axis to indicate that they want to look at a subset of data where the values are within a certain range on a given axis. Yet in this implementation, this functionality doesn’t seem to work -- rendering the original values for the user to see would somewhat defeat the purpose of displaying trends and outliers for extremely large datasets. Scrubbing for finding trends or outliers doesn’t make sense either, since the user should already be able to see this clearly. 
 
-
-
-\section {Paper Information}
-TBD
-
 \section {System Differences}
 Our implementation allows for the user to specify how many bins they want. The paper doesn’t cover details of how the user interacts with their system, so we decided to simply add a command line argument to the precomputation script. This is accessible by running python3 bin.py n, where n is the number of bins desired per axis. 
 Bradley talk about alpha blending here. 
+
+Our implementation also has axis labels so the user can see exactly where trends/outliers lie. In their implementation,
+they have labels at the very top and bottom, but nowhere in between. 
+
+They discuss using the GPU to optimize rendering, but we don't interact with the GPU. We wanted to focus on 
+getting a working implementation and observing the benefits of binning. 
 
 \subsection {Datasets Chosen}
 The paper’s examples used a CFD simulation dataset (mixture of two fluids) and remote sense data. We were unable to find the original datasets, which made it difficult for us to compare our implementations. 
@@ -133,12 +154,17 @@ For all of our datasets, we made sure to either choose datasets without numerica
 map categorical variables to regular intervals, but this would not work well with their approach of creating trends, as the order of the trends would have no inherent importance
 but this would affect our trend detection. Because of this, it seems the specific usecase for their approach is actually quite small. 
 
+The list of datasets we chose are BudgetFood, EuStockMarkets, and MidyearPopulationCensus. The largest dataset is MidyearPopulationCensus, which is over 800 mb. We
+cleaned out all of the datasets by converting male/female values to 0 and 1, and removing non-numerical columns. 
 
 \section {Case Study/Analysis Results}
 TBD (timing test results)
 
 \section {Strengths and Limitations}
-A key strength of this method is that it scales well for large data sets. Since we simply represent the count in buckets then normalize these buckets, the original size of the dataset has very little influence on that of the precomputed data. 
+A key strength of this method is that there is far less data to plot at a time. When we tried to render traditional parallel coordaintes with some gigabyte datasets, it took almost a minute just to load all of the data onto
+the browser, then more to draw. Although it took a while to precompute our implementation, it rendered far faster. Additionally, it would be fully possible to parallelize our
+precomputation to enable the user to spend even less time in this step. 
+
 A limitation of this method and parallel coordinates overall is that it is primarily designed for numerical variables. As such, we can’t work with many datasets. We also can’t represent time series or continuous data well, since we bind them to their closest bucket ranges. 
 This work could be furthered by diving deeper into how buckets should be created. Bucket creation is core to their paper and may drastically affect the visualization. We defaulted to using 10 buckets per axis, but this may result in a loss of detail for the final visualization. 
 Another idea for future work would be to improve the outlier detection. The outlier detection works by scanning buckets that are at least 10\% full. Changing this barrier would change the outliers visible for the user. 
