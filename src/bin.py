@@ -426,7 +426,7 @@ if __name__ == '__main__':
     total_max_freq = 0
     
     # Create 2d array to store relationship between each pair of axes
-    for i in range(1, num_dimensions):
+    for i in range(0, num_dimensions):
         for j in range(i+1, num_dimensions):
             # compare the i'th and j'th dimensions
             # create a binxbin 2d array to store the relationship between each pair of axes
