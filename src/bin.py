@@ -1,3 +1,4 @@
+import sys
 import json
 import csv
 import matplotlib.pyplot as pl
@@ -169,8 +170,8 @@ def intersect_outliers(bin1, bin2):
     return(list(set(bin1) & set(bin2)))
 
 def getBuckets(val1, val2, min_dim_i, max_dim_i, min_dim_j, max_dim_j, num_bins):
-    bucket1 = int((val1 - min_dim_i) / (max_dim_i - min_dim_i) * 10)
-    bucket2 = int((val2 - min_dim_j) / (max_dim_j - min_dim_j) * 10)
+    bucket1 = int((val1 - min_dim_i) / (max_dim_i - min_dim_i) * num_bins)
+    bucket2 = int((val2 - min_dim_j) / (max_dim_j - min_dim_j) * num_bins)
     if bucket1 == num_bins:
         bucket1 -= 1
     if bucket2 == num_bins:
@@ -415,7 +416,12 @@ with open (filename + '.csv', 'r') as f:
 
 if __name__ == '__main__':
     # initialize relevant variables
-    num_bins = 10
+    print(sys.argv)
+    if len(sys.argv) > 1:
+        num_bins = int(sys.argv[1])
+    else:
+        num_bins = 10
+    print('num_bins is ' + str(num_bins))
     dimensions = text[0]
     num_dimensions = len(dimensions)
     axesbins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
