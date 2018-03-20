@@ -116,9 +116,11 @@ Once we have precomputed this data, we will plot it on our system with d3 and we
 the axes and labels, and supports the ability to move axes around. Webgl will display our polygons for
 representing trends as well as drawing the outliers. This would also take care of the textures for us. 
 
-To run the precomputing script on data.csv with 10 bins per axis, run \texttt{python3 bin.py data 10}. The input
-data should have no quotes and end in \texttt{.csv}. This will also create array.png and array2.png. These show examples of the 
-data before and after gaussian filtering. 
+To run the precomputing script on data.csv with 10 bins per axis, run \texttt{python3.6 bin.py data 10}. The input
+data should have no quotes and end in \texttt{.csv}. We require python3.6 for matplotlib, which is needed
+for gaussian filtering. This will also create array.png and array2.png. These show examples of the 
+data before and after gaussian filtering. Alternatively, there are pre-created output.json files by us in /src/precomputed-data. 
+Move those into /src and rename to ``output.json'' to try each out. 
 
 \begin{figure}
   \caption{Our Implemented System}
@@ -156,7 +158,6 @@ Another issue with focus is that they never described how the user would interac
 
 \section {System Differences}
 Our implementation allows for the user to specify how many bins they want. The paper doesn't cover details of how the user interacts with their system, so we decided to simply add a command line argument to the precomputation script. This is accessible by running python3 bin.py n, where n is the number of bins desired per axis. 
-Bradley talk about alpha blending here. 
 
 Our implementation also has axis labels so the user can see exactly where trends/outliers lie. In their implementation,
 they have labels at the very top and bottom, but nowhere in between. 
