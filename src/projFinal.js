@@ -1,10 +1,17 @@
 const drawingPane = d3.select("#drawingPane");
+const canvas = d3.select("#webGLCanvas");
 
+//----------------------------------------------------------------------------------------------------------------------
+// Chart dimensions
+//----------------------------------------------------------------------------------------------------------------------
 const chartMargins = {top: 50, left: 50};
-
 let width = drawingPane.attr("width"),
     height = drawingPane.attr("height");
+let pcSize = [width - chartMargins.left * 2, height - chartMargins.top * 2];
 
+//----------------------------------------------------------------------------------------------------------------------
+// d3 components.
+//----------------------------------------------------------------------------------------------------------------------
 const pcXScale = d3.scaleOrdinal();
 
 const pcYAxis = d3.axisLeft();
@@ -18,14 +25,39 @@ let pcDimensions = [
 const pcBrushes = {};
 const dragging = {};
 
+//----------------------------------------------------------------------------------------------------------------------
+// Data
+//----------------------------------------------------------------------------------------------------------------------
+let contextData;
+
+
+
+
 function drawParallelCoordinates() {
     drawingPane.selectAll("*").remove();
 
-    width = document.body.clientWidth
+    width = document.body.clientWidth;
     height = 480;
 
     drawingPane.attr("width", width)
         .attr("height", height);
+
+    pcSize = [width - chartMargins.left * 2, height - chartMargins.top * 2];
+
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.style("left", chartMargins.left+9+"px")
+        .style("top", chartMargins.top+9+"px")
+        .style("width", pcSize[0]+"px")
+        .style("height", pcSize[1]+"px")
+        .attr("width", pcSize[0] * dpr)
+        .attr("height", pcSize[1] * dpr);
+
+    wglSetGLObj(canvas.node().getContext("webgl2"));
+
+    initDraw();
+    wglDrawFrame();
+
     drawParallelCoordinatesAxes();
 }
 
@@ -33,12 +65,11 @@ function drawParallelCoordinatesAxes() {
     // drawingPane.append("rect")
     //     .attr("width", "100%")
     //     .attr("height", "100%")
-    //     .attr("fill", "gray");
+    //     .attr("fill", "blue");
 
     let g = drawingPane.append("g")
         .attr("transform", "translate(" + (chartMargins.left) + ", " + (chartMargins.top) + ")");
 
-    pcSize = [width - chartMargins.left * 2, height - chartMargins.top * 2];
 
     let xrange = [];
     for (let i = 0; i < pcDimensions.length; ++i) {
@@ -155,6 +186,25 @@ function drawParallelCoordinatesAxes() {
 
 function loadData(callback) {
     // TODO load the data, then call callback when complete
+    d3.json("output.json", function(error, metadata) {
+        if (error) throw error;
+
+        console.log(metadata);
+
+        pcDimensions = [];
+        for (let i = 0; i < metadata.labels.length; ++i) {
+            pcDimensions.push({id:i, title:metadata.labels[i], yScale:d3.scaleLinear().domain([metadata.min[i], metadata.max[i]])});
+        }
+
+        contextData = metadata.data;
+        wglSetNumPanels(pcDimensions.length - 1);
+
+        // TODO setup axes
+        // TODO load data to WGL renderer
+        // TODO assume
+
+        callback();
+    });
 }
 
 function extractId(obj) {
@@ -166,5 +216,5 @@ function position(d) {
     return ret == null ? pcXScale(d.id) : ret;
 }
 
-
-drawParallelCoordinates();
+loadData(drawParallelCoordinates);
+// drawParallelCoordinates();

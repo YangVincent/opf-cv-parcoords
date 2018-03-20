@@ -1,11 +1,13 @@
-const vsSource = `
-attribute vec2 pos;
-attribute vec4 colorIn;
+const transVS = `
+precision mediump float;
 
-varying vec4 colorOut;
+attribute vec2 pos;
+attribute float alpha;
+
+varying float alphaOut;
 
 void main() {
-    colorOut = colorIn;
-    gl_Position = vec4(pos,0.0,1.0);
+    alphaOut = alpha;
+    gl_Position = vec4(pos, 0.0, 1.0);
 }
 `;

@@ -3,6 +3,17 @@ body {
   min-width: 760px;
 }
 
+#webGLCanvas {
+  position:absolute;
+  pointer-events:none;
+  width:1280px;
+  height:720px;
+}
+#drawingPane {
+    position:absolute;
+    vertical-align: top;
+}
+
 .parcoords {
   display: block;
 }
