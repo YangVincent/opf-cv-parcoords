@@ -43,6 +43,11 @@ function drawParallelCoordinates() {
         .attr("height", height);
 
     pcSize = [width - chartMargins.left * 2, height - chartMargins.top * 2];
+    let xrange = [];
+    for (let i = 0; i < pcDimensions.length; ++i) {
+        xrange.push(i * pcSize[0] / (pcDimensions.length - 1));
+    }
+    pcXScale.domain(pcDimensions.map(extractId)).range(xrange);
 
     const dpr = window.devicePixelRatio || 1;
 
@@ -56,7 +61,11 @@ function drawParallelCoordinates() {
     wglSetGLObj(canvas.node().getContext("webgl2"));
 
     initDraw();
-    wglDrawFrame();
+
+    wglSetNumPanels(3);
+
+    wglRedrawContext(contextData, pcDimensions.map(extractId));
+    wglDrawFrame(pcDimensions.map(positionNormalized));
 
     drawParallelCoordinatesAxes();
 }
@@ -71,11 +80,6 @@ function drawParallelCoordinatesAxes() {
         .attr("transform", "translate(" + (chartMargins.left) + ", " + (chartMargins.top) + ")");
 
 
-    let xrange = [];
-    for (let i = 0; i < pcDimensions.length; ++i) {
-        xrange.push(i * pcSize[0] / (pcDimensions.length - 1));
-    }
-    pcXScale.domain(pcDimensions.map(extractId)).range(xrange);
 
     for (const dim of pcDimensions) {
         dim.yScale.range([pcSize[1], 0]);
@@ -103,7 +107,12 @@ function drawParallelCoordinatesAxes() {
                 pcDimensions.sort(function(a, b) {return position(a) - position(b);});
                 pcXScale.domain(pcDimensions.map(extractId));
                 axes.attr("transform", function(d) {return "translate(" + position(d) + ")"; });
+                if (Math.abs(d3.event.x - this.__origin__) > pcSize[0]/(pcDimensions.length - 1)) {
+                    this.__origin__ = d3.event.x;
+                }
                 // brush_count++;
+                wglRedrawContext(contextData, pcDimensions.map(extractId));
+                wglDrawFrame(pcDimensions.map(positionNormalized));
                 this.__dragged__ = true;
                 // console.log("drag");
             })
@@ -111,7 +120,10 @@ function drawParallelCoordinatesAxes() {
                 if (!this.__dragged__) {
                     // No movement, basically clicked, do something?
                 } else {
-                    d3.select(this).transition().attr("transform", "translate(" + pcXScale(d.id) + ")");
+                    d3.select(this).transition().attr("transform", "translate(" + pcXScale(d.id) + ")").on("end",function(d) {
+                        wglRedrawContext(contextData, pcDimensions.map(extractId));
+                        wglDrawFrame(pcDimensions.map(positionNormalized));
+                    });
                 }
 
                 // pcXScale.domain(pcDimensions.map(extractId));
@@ -199,6 +211,16 @@ function loadData(callback) {
         contextData = metadata.data;
         wglSetNumPanels(pcDimensions.length - 1);
 
+        for (let i = 0; i < contextData.length; ++i) {
+            for (let j = 0; j < contextData[i].length; ++j) {
+                if (!contextData[i][j].outliers) continue;
+                for (const outlier of contextData[i][j].outliers) {
+                    outlier[0] = (outlier[0] - metadata.min[i]) / (metadata.max[i] - metadata.min[i]);
+                    outlier[1] = (outlier[1] - metadata.min[j]) / (metadata.max[j] - metadata.min[j]);
+                }
+            }
+        }
+
         // TODO setup axes
         // TODO load data to WGL renderer
         // TODO assume
@@ -214,6 +236,11 @@ function extractId(obj) {
 function position(d) {
     const ret = dragging[d.id];
     return ret == null ? pcXScale(d.id) : ret;
+}
+
+function positionNormalized(d) {
+    return position(d) / pcSize[0];
+
 }
 
 loadData(drawParallelCoordinates);

@@ -43,7 +43,7 @@ body {
 }
 
 .axis .tick text {
-  fill: #222;
+  fill: #aaa;
   pointer-events: none;
 }
 
