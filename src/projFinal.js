@@ -62,7 +62,7 @@ function drawParallelCoordinates() {
 
     initDraw();
 
-    wglSetNumPanels(3);
+    wglSetNumPanels(pcDimensions.length - 1);
 
     wglRedrawContext(contextData, pcDimensions.map(extractId));
     wglDrawFrame(pcDimensions.map(positionNormalized));
