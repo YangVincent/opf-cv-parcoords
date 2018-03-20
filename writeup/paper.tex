@@ -164,6 +164,7 @@ they have labels at the very top and bottom, but nowhere in between.
 They discuss using the GPU to optimize rendering, but we don't interact with the GPU. We wanted to focus on 
 getting a working implementation and observing the benefits of binning. 
 
+
 \subsection {Datasets Chosen}
 The paper's examples used a CFD simulation dataset (mixture of two fluids) and remote sense data. We were unable to find the original datasets, which made it difficult for us to compare our implementations. 
 We chose the international census data to emphasize the speed improvements with their method. The census data is nearly a gigabyte and has over 100 axes, which makes it interesting for us to observe. This dataset was released by the US Census Bureau in 1950 and has its projections through to 2050. Specifically, the original data used to generate this dataset came from observing cities with over 5000 people. We looked specifically at midyear population age by country. 
@@ -187,7 +188,7 @@ cleaned out all of the datasets by converting male/female values to 0 and 1, and
  quakes&   3 & 10 & 1001\\
  census &- &32min & 3058281\\
  EuStock &3.1 &8 & 1861\\
- age-alc &<1 &<1 & 396\\
+ age-alc &$<1$ &$<1$ & 396\\
  \hline
 \end{tabular}
 

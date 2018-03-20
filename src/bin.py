@@ -406,29 +406,28 @@ def medianFilter(threshold, grid):
 
     return(res)
 
-filename = 'age-alc'
-#filename = 'test'
-with open (filename + '.csv', 'r') as f:
-    reader = csv.reader(f, delimiter = ',', quoting=csv.QUOTE_NONNUMERIC)
-    text = []
-    for row in reader: 
-        text.append(row)
-
 if __name__ == '__main__':
-    # initialize relevant variables
-    print(sys.argv)
     if len(sys.argv) > 1:
-        num_bins = int(sys.argv[1])
+        filename = sys.argv[1]
+    else:
+        filename = 'age-alc'
+    with open (filename + '.csv', 'r') as f:
+        reader = csv.reader(f, delimiter = ',', quoting=csv.QUOTE_NONNUMERIC)
+        text = []
+        for row in reader: 
+            text.append(row)
+    
+    # initialize relevant variables
+    if len(sys.argv) > 2:
+        num_bins = int(sys.argv[2])
     else:
         num_bins = 10
-    print('num_bins is ' + str(num_bins))
     dimensions = text[0]
     num_dimensions = len(dimensions)
     axesbins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
     clusterbins = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
     # Given two axes i and j, axesoutliers[i][j] holds a list of (val1, val2) that are outliers. 
     axesoutliers = [[None for i in range(num_dimensions)] for i in range(num_dimensions)]
-    #print(dimensions)
     
     # find max and min for each dimension; max[i] holds the max for the i'th dimension, or dimensions[i]
     max_dim, min_dim = getMaxMin(text)
@@ -453,7 +452,6 @@ if __name__ == '__main__':
                 min_freq = min(min_freq, bins[bucket1][bucket2])
                 total_max_freq = max(max_freq, total_max_freq)
 
-            #print('Comparing ' + str(dimensions[i]) + ' and ' + str(dimensions[j]))
             # Create outliers
             isolation_bins = isolationFilter(int(max_freq * 0.1), bins)
             median_bins = medianFilter(int(max_freq * 0.1), bins)
@@ -481,7 +479,6 @@ if __name__ == '__main__':
 
             # clustering
             c = cluster(bins, num_bins)
-            print(c)
             # invert clusters for formatting. Make it key(cluster#) -> array of locations
             cluster_d = {}
             for k in c.keys():
@@ -490,7 +487,6 @@ if __name__ == '__main__':
                 else:
                     cluster_d[c[k]] = [k]
                 
-            print(cluster_d)
             clusterbins[i][j] = cluster_d
 
             axesoutliers[i][j] = outliers
@@ -498,9 +494,9 @@ if __name__ == '__main__':
     # normalize
     axesbinsnormalized = normalize(axesbins, total_max_freq, num_dimensions, num_bins)
 
-    output('normalized_trends.txt', axesbinsnormalized)
-    output('outliers.txt', axesoutliers)
-    output('clusters.txt', clusterbins)
+    #output('normalized_trends.txt', axesbinsnormalized)
+    #output('outliers.txt', axesoutliers)
+    #output('clusters.txt', clusterbins)
     output_data = writejson('output.json', axesbinsnormalized, axesoutliers, clusterbins, num_dimensions)
     with open('output.json', 'w') as out:
         d = {}

@@ -47,7 +47,12 @@ var dimensions = [ ];
 
 
 //d3.csv("planets.csv", function(error, data) {
-d3.csv("credit-default.csv", function(error, data) {
+//d3.csv("quakes.csv", function(error, data) {
+
+//d3.csv("cleaned-midyear-population-age-country-code.csv", function(error, data) {
+d3.csv("age-alc.csv", function(error, data) {
+//d3.csv("EuStockMarkets.csv", function(error, data) {
+//d3.csv("credit-default.csv", function(error, data) {
 //d3.csv("cleaned-midyear-population-age-country-code.csv", function(error, data) {
     if (error) throw error;
 
