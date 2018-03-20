@@ -1,0 +1,26 @@
+
+\begin{thebibliography}{10}
+
+\bibitem{Outlier}
+Matej~Novotny and Helwig~Hauser.
+\newblock Outlier-preserving Focus+Context Visualization in Parallel Coordinates.
+\newblock {\em IEEE Transactions on Visualization and Computer Graphics}, vol. 12, no. 5, pp. 893-900, Sept.-Oct. 2006.
+
+
+\bibitem{Gaussian}
+D.~Bauer and R.Peikert.
+\newblock Vortex tracking in scale-space.
+\newblock {\em Joint Eurographics - IEEE TCVG Symposium on Visualization}, pages 140-147, May 2002.
+
+\bibitem{Categorical}
+Fabian~Bendix, Robert~Kosara, and Helwig~Hauser.
+\newblock Parallel sets: Visual analysis of categorical data.
+\newblock {\em INFOVIS}, page 18, 2005.
+
+\bibitem{Census}
+https://www.kaggle.com/census/international-data/data
+
+\bibitem{Bundock Data}
+https://vincentarelbundock.github.io/Rdatasets/datasets.html
+
+\end{thebibliography}
